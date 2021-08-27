@@ -9,22 +9,29 @@ client = pymongo.MongoClient("mongodb+srv://username:password@clusterxxx.mongodb
 db = client.products
 
 #Product ID & number of reviews
-product_id = input("Enter product id: ") #67652
-product_reviews = input("Enter number of reviews: ") #740
+product_id = input("Enter product id: ")
+product_reviews = input("Enter number of reviews: ")
 
-#Launching webdriver via Selenium (Chrome)
-driver = webdriver.Chrome()
-driver.get('https://www.iherb.com/ugc/api/review/adaptive?pid='+product_id+'&limit='+product_reviews+'&lc=en-US&page=1&sortId=2&withUgcSummary=true&withImagesOnly=false&isShowTranslated=false')
+number_of_pages = 1
+if (int(product_reviews) > 999):
+    number_of_pages = -(-int(product_reviews) // 1000)
 
-#Parsing page source and converting it to json format
-page_source = driver.page_source
-soup = BeautifulSoup(page_source,'html.parser')
-site_json = json.loads(soup.text)
+for page in range(number_of_pages):
 
-#Storing review text & ratings in two lists
-review_text = [d.get('reviewText') for d in site_json['items'] if d.get('reviewText')]
-rating_value = [d.get('ratingValue') for d in site_json['items'] if d.get('ratingValue')]
+    #Launching webdriver via Selenium (Chrome)
+    driver = webdriver.Chrome()
+    driver.get('https://www.iherb.com/ugc/api/review/adaptive?pid='+product_id+'&limit='+product_reviews+'&lc=en-US&page='+str(page)+'&sortId=2&withUgcSummary=true&withImagesOnly=false&isShowTranslated=false')
 
-#Store reviews in MongoDB, two arrays
-record = {'review_text': review_text, 'rating_value': rating_value}
-db.theanine.insert_one(record)
+    #Parsing page source and converting it to json format
+    soup = BeautifulSoup(driver.page_source,'html.parser')
+    site_json = json.loads(soup.text)
+
+    #Storing review text & ratings in two lists
+    review_text = [d.get('reviewText') for d in site_json['items'] if d.get('reviewText')]
+    rating_value = [d.get('ratingValue') for d in site_json['items'] if d.get('ratingValue')]
+
+    #Store reviews in MongoDB, two arrays
+    record = {'review_text': review_text, 'rating_value': rating_value}
+    db.ginko.insert_one(record)
+
+    driver.quit()
