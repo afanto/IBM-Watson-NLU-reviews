@@ -17,8 +17,8 @@ for page in range(number_of_pages):
     driver.get('https://www.iherb.com/ugc/api/review/adaptive?pid='+product_id+'&limit='+product_reviews+'&lc=en-US&page='+str(page+1)+'&sortId=2&withUgcSummary=true&withImagesOnly=false&isShowTranslated=false')
 
     site_json = json.loads(BeautifulSoup(driver.page_source,'html.parser').text)
-    review_text.append([d.get('reviewText') for d in site_json['items'] if d.get('reviewText')])
-    rating_value.append([d.get('ratingValue') for d in site_json['items'] if d.get('ratingValue')])
+    review_text.extend([d.get('reviewText') for d in site_json['items'] if d.get('reviewText')])
+    rating_value.extend([d.get('ratingValue') for d in site_json['items'] if d.get('ratingValue')])
 
     driver.quit()
 
