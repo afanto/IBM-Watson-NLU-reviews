@@ -15,7 +15,7 @@ natural_language_understanding.set_service_url('redacted')
 
 print("Total number of reviews: " + str(no_reviews))
 
-print("Watson(positive) - Categories\n")
+print("Watson(positive) - Categories")
 for element in _positive(natural_language_understanding, 0.65):
     print(element)
 
